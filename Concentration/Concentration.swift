@@ -28,7 +28,7 @@ struct Concentration { // ref type
 //            }
 //            return foundIndex
         }
-        
+        // 332
         set {
             for index in cards.indices {
                 cards[index].isFaceUp = (index == newValue )
