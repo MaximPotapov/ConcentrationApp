@@ -10,6 +10,7 @@ import Foundation
 
 struct Card: Hashable { // value type
     
+    
     var hashValue: Int {return identifier}
 
     static func == (lhs: Card,rhs: Card) -> Bool {

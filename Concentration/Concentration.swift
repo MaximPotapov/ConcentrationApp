@@ -12,21 +12,18 @@ import Foundation
 struct Concentration { // ref type
     private(set) var  cards = [Card]()
     
+    private(set) var score = 0
+    private var seenCards: Set<Int> = []
+    
+    private struct Points {
+        static let matchCard = 2
+        static let misMatchCard = 1
+    }
+    
     private var indexOfOneAndOnlyFaceUpCard: Int? {
         get {
             let ch = "h".oneAndOnly
-            return cards.indices.filter {cards[$0].isFaceUp}.oneAndOnly // bool func executed by closure -> return true if card in index is face up.
-//            var foundIndex: Int?
-//            for index in cards.indices {
-//                if cards[index].isFaceUp {
-//                    if foundIndex == nil {
-//                        foundIndex = index
-//                    } else {
-//                         return nil
-//                    }
-//                }
-//            }
-//            return foundIndex
+            return cards.indices.filter {cards[$0].isFaceUp}.oneAndOnly // bool
         }
         // 332
         set {
@@ -43,11 +40,23 @@ struct Concentration { // ref type
                 if cards[matchIndex] == cards[index] {
                     cards[matchIndex].isMatched = true
                     cards[index].isMatched = true
+                    
+                    score += Points.matchCard // increase points if match
+                } else {
+                    if seenCards.contains(index) {
+                        score -= Points.misMatchCard
+                    }
+                    if seenCards.contains(matchIndex) {
+                        score -= Points.misMatchCard
+                    }
+                    seenCards.insert(index)
+                    seenCards.insert(matchIndex)
                 }
                 cards[index].isFaceUp = true
               
             } else {
                 indexOfOneAndOnlyFaceUpCard = index
+                
             }
         }
     }
@@ -59,13 +68,21 @@ struct Concentration { // ref type
                 let card = Card()
                 cards += [card, card]
             }
-        
-        // TO DO: SHUFFLE CARDS
-            
+            cards.shuffleCards()
     }
     
     func setNumberOfPairs(of cards: Int) {
         
+    }
+    
+    mutating func resetGame() {
+        for index in cards.indices {
+            cards[index].isFaceUp = false
+            cards[index].isMatched = false
+            score = 0
+        }
+        cards.shuffleCards()
+        seenCards.removeAll()
     }
     
 }
@@ -75,3 +92,16 @@ extension Collection {
         return count == 1 ? first : nil 
     }
 }
+
+extension Array {
+    mutating func shuffleCards() {
+        if count < 2 { return } // if collection empty or has 1 element -> no need to  shuffle
+        
+        for i in indices.dropLast() {
+            let diff = distance(from: i, to: endIndex)
+            let j = index(i, offsetBy: diff.arc4random)
+            swapAt(i, j)
+        }
+    }
+}
+

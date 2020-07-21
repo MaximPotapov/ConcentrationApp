@@ -19,7 +19,7 @@ class ViewController: UIViewController {
     
     private(set) var flipCount = 0 {
         didSet { // everytime flipCount value changes -> change text label
-        
+            updateFlipCountLabel()
         }
     }
     
@@ -33,12 +33,23 @@ class ViewController: UIViewController {
         flipCountLabel.attributedText = attributedString
     }
     
-    @IBOutlet private weak var flipCountLabel: UILabel! { // label assigmentc
-        didSet {
-             updateFlipCountLabel()
-        }
+    @IBAction func newGameButton() {
+        game.resetGame()
+        indexTheme = keys.count.arc4random
+        updateViewFromModel()
+        flipCount = 0
+        
+        
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        indexTheme = keys.count.arc4random
+        updateViewFromModel()
+    }
+        
+    @IBOutlet private weak var flipCountLabel: UILabel! // label assigmentc
+        
     @IBOutlet private var cardButtons: [UIButton]! // array of buttons
     
     @IBAction private  func touchCard(_ sender: UIButton) { // touch func
@@ -54,6 +65,9 @@ class ViewController: UIViewController {
         
     } // end of touch func
     
+    @IBOutlet weak var scoreLabel: UILabel!
+    
+    
     func updateViewFromModel() {
         for index in cardButtons.indices {
             let button = cardButtons[index]
@@ -68,11 +82,31 @@ class ViewController: UIViewController {
                 button.backgroundColor = card.isMatched ?  #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 0) : #colorLiteral(red: 1, green: 0.5763723254, blue: 0, alpha: 1)
             }
         }
+        scoreLabel.text = " \(game.score)"
     }
     
-    private var emojiChoices = "👁🧟🕸🕷🌚🔦🕯"
+    private var emojiChoices = ["👁","🧟","🕸","🌚","🔦","🕯"]
      
     private  var emoji = [Card: String]()
+    
+    private var emojiThemes: [String: [String]] = [
+        "Halloween" : ["👁","🧟","🕸","🌚","🔦","🕯", "🕷", "🎃"],
+        "Fruits" : ["🍏","🍐","🍊","🍋","🍌","🍓", "🍒", "🍍"],
+        "Vegatables" : ["🍆","🍅","🧅","🥕","🥔","🥒", "🌶", "🌽"],
+        "Sport" : ["⚽️","🏀","🏈","🎾","🏐","🥏", "🏓", "🎱"],
+        "Transport" : ["🚗","🏎","🛵","🏍","🚌","🚚", "🚃", "🚙"],
+        "Flags" : ["🏳️‍🌈","🇲🇶","🇳🇫","🇷🇪","🇾🇹","🇦🇴", "🏴‍☠️", "🇺🇳"]
+    ]
+    
+    private var indexTheme = 0 {
+        didSet {
+            print(indexTheme, keys[indexTheme])
+            emojiChoices = emojiThemes[keys[indexTheme]] ?? []
+            emoji = [Card : String]()
+        }
+    }
+    
+    private var keys: [String]{return Array(emojiThemes.keys)}
     
     private  func emoji(for card: Card) -> String {
         if emoji[card] == nil {
