@@ -15,6 +15,8 @@ struct Concentration { // ref type
     private(set) var score = 0
     private var seenCards: Set<Int> = []
     
+    private(set) var flipCount = 0
+    
     private struct Points {
         static let matchCard = 2
         static let misMatchCard = 1
@@ -36,6 +38,7 @@ struct Concentration { // ref type
     mutating func chooseCard(at index: Int)  { // choose card by its index ( not emoji)
         assert(cards.indices.contains(index), "Concentration.chooseCard(at:\(index): no such index")
         if !cards[index].isMatched {
+            flipCount += 1
             if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
                 if cards[matchIndex] == cards[index] {
                     cards[matchIndex].isMatched = true
@@ -76,10 +79,13 @@ struct Concentration { // ref type
     }
     
     mutating func resetGame() {
+        flipCount = 0
+        score = 0
+        seenCards = []
         for index in cards.indices {
             cards[index].isFaceUp = false
             cards[index].isMatched = false
-            score = 0
+            
         }
         cards.shuffleCards()
         seenCards.removeAll()
